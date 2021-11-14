@@ -1,11 +1,12 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const ObjectId = require('mongodb').ObjectId;
-const cors = require('cors')
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express()
 const port = process.env.PORT || 5000;
+
 
 // middleware
 app.use(cors());
@@ -21,13 +22,14 @@ async function run() {
       await client.connect();
       const database = client.db("foodsense");
       const servicesCollection = database.collection("services");
+      const usersCollection = database.collection('users')
      
       //  GET API
       app.get('/services', async(req, res)=>{
         const cursor = servicesCollection.find({});
         const services = await cursor.toArray();
         res.send(services);
-    }) 
+    }) ;
 
      //GET single service
      app.get('/services/:id', async(req, res)=>{
@@ -36,7 +38,7 @@ async function run() {
         const query = {_id: ObjectId(id)};
         const service = await servicesCollection.findOne(query)
         res.json(service);
-    }) 
+    }) ;
 
     //   post API
         app.post('/services', async(req, res) =>{
@@ -46,7 +48,7 @@ async function run() {
         const result = await servicesCollection.insertOne(service);
         console.log(result)
         res.json(result)
-    })
+    });
 
 
     // update API
@@ -73,6 +75,23 @@ async function run() {
         const query = {_id:ObjectId(id)};
         const result = await servicesCollection.deleteOne(query);
         res.json(result)
+      })
+
+      app.post('/users', async(req, res) => {
+        const user = req.body;
+        const result = await usersCollection.insertOne(user);
+        // console.log(result)
+        res.json(result)
+      })
+// jhgjfgf
+      app.put('/users', async(req, res) =>{
+        const user = req.body;
+        console.log('put', user)
+        const filter ={email: user.email};
+        const options = {upsert : true}
+        const updateDoc = {$set: user};
+        const result = await usersCollection.updateOne(filter, updateDoc,options)
+        res.json(result);
       })
      
     } finally {
