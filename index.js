@@ -23,7 +23,27 @@ async function run() {
       const database = client.db("foodsense");
       const servicesCollection = database.collection("services");
       const usersCollection = database.collection('users')
+      const reviewsCollection = database.collection("reviews");
      
+
+
+      //  user review data
+      app.get("/add-review", (req, res) => {
+        reviewsCollection.find({}).toArray((err, results) => {
+          res.send(results);
+        });
+      });
+
+      // Add a Review
+      app.post("/add-review", (req, res) => {
+        console.log(req.body);
+        reviewsCollection.insertOne(req.body).then((documents) => {
+          res.send(documents.insertedId);
+        });
+      });
+
+
+      
       //  GET API
       app.get('/services', async(req, res)=>{
         const cursor = servicesCollection.find({});
